@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurangzeb Quiz Application</title>
+    <style>
+        /* General Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', sans-serif;
+            min-height: 100vh;
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+        }
+
+        /* First Page Styles */
+        #startPage {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+      .box {
+    background: linear-gradient(45deg, rgb(218, 0, 171), rgb(0, 255, 191), rgb(255, 221, 0), rgb(218, 0, 171));
+    background-size: 400% 400%;
+    padding: 8px 50px;
+    font-size: 2.1rem;
+    font-weight: 700;
+    font-family: 'Tangerine', cursive;
+    color: black;
+    box-shadow: 0 0 50px rgb(0, 255, 191);
+    outline: 4px solid black;
+    outline-offset: 5px;
+    cursor: pointer;
+    border-radius: 10px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: gradientFlow 5s ease infinite, pulse 1s infinite;
+    transition: background 0.5s ease, box-shadow 0.3s ease;
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.box:hover {
+    background: linear-gradient(45deg, rgb(0, 255, 255), rgb(255, 0, 255), rgb(255, 255, 0), rgb(0, 255, 255));
+    background-size: 400% 400%;
+    box-shadow: 0 0 50px rgb(255, 0, 255);
+}
+
+        .box:hover {
+            background-color: rgb(56, 255, 242);
+            box-shadow: 0 0 80px yellow;
+            outline-color: rgb(0, 255, 102);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 50px rgb(0, 255, 0); }
+            50% { box-shadow: 0 0 100px rgb(255, 0, 0); }
+            100% { box-shadow: 0 0 50px rgb(104, 61, 82); }
+        }
+
+        .loading-text {
+            position: relative;
+            font-family: 'Allura', cursive;
+            background: linear-gradient(90deg, rgb(255, 0, 0), #0ff, #00f) -1810% / 114%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font: 900 clamp(2em, 6vw, 4em) 'Allura', cursive;
+            animation: shimmer 2s linear infinite, glitch 2s infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 100%; }
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: none; opacity: 1; }
+            92% { transform: translateX(-1px) skew(0deg); opacity: 0.9; }
+            94% { transform: translateX(2px) skew(-2deg); opacity: 1; }
+            96% { transform: translateX(-1px) skew(1deg); opacity: 0.95; }
+            98% { transform: translateX(1px) skew(-1deg); opacity: 1; }
+        }
+
+        /* Quiz Page Styles */
+        #quizPage {
+            background: linear-gradient(135deg, #452c4753, #13a155);
+            color: #000000;
+            position: relative;
+            min-height: 100vh;
+            display: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+       .card {
+    background: linear-gradient(135deg, #91b9d8, #83b1a8, #b8afed);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgb(183, 56, 56);
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: transform 0.2s;
+}
+
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question .en {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #000000;
+            margin-top: 5px;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            margin: 5px 0;
+            border: 3px solid #000;
+            border-radius: 8px;
+            background: #9cb7cf;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.4s ease, transform 0.1s, border-color 0.4s ease, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            color: #000;
+        }
+
+        .options button:hover {
+            background: #f4ff1f;
+            border-color: #9d00ff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .options button.correct {
+            background: #6cff5e !important;
+            border-color: #ae00ff !important;
+            cursor: default;
+            color: #000 !important;
+             font-weight: bold;
+        }
+
+        .options button.wrong {
+            background: #b51010 !important;
+            border-color: #000 !important;
+            cursor: default;
+            color: #000 !important;
+        }
+
+        .options button.disabled {
+            pointer-events: none;
+            color: #000;
+        }
+
+        .options button::after {
+            content: '';
+            position: absolute;
+            background: rgb(212, 51, 51);
+            border-radius: 50%;
+            width: 0;
+            height: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .options button:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to { width: 300px; height: 300px; opacity: 0; }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4311e8, #ff00dd, #cbd6db, #4311e8);
+            background-size: 400% 400%;
+            animation: flowGradient 5s ease infinite;
+            transition: transform 0.3s ease, box-shadow 0.5s ease;
+            color: #000;
+        }
+
+        .controls button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+
+        @keyframes flowGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background: #89b2f4;
+            border-left: 4px solid #000000;
+            font-size: 0.95rem;
+            animation: slideDown 0.4s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+            font-weight: bold;
+        }
+
+        .explanation.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress {
+            height: 8px;
+            background: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #18ff03d6, #ff2802);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3e5a52;
+            position: absolute;
+            top: -16px;
+            right: -20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.8rem;
+            transform: scale(0);
+            animation: grow 0.5s ease forwards;
+        }
+
+        @keyframes grow {
+            to { transform: scale(1); }
+        }
+
+        #timerContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            color: #000;
+            z-index: 9999;
+            user-select: none;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        #timerContainer.hidden {
+            visibility: hidden;
+        }
+
+        #timerBar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        #timerBarFill {
+            height: 100%;
+            background: #ff4444;
+            width: 100%;
+            transition: width 1s linear, background 1s ease;
+        }
+
+        /* Dashboard Page Styles */
+        #dashboardPage {
+            background: linear-gradient(45deg, #a1c4fd, #c2e9fb, #d4fc79);
+            background-size: 600% 400%;
+            animation: flow 5s ease-in-out infinite;
+            padding: 40px;
+            display: none;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUpContainer 1.2s ease-in-out;
+        }
+
+        @keyframes slideUpContainer {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .dashboard-container h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: bounceIn 1s ease-in-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        .dash-box {
+            border: 4px solid rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+            background-size: 800% 600%;
+            animation: waveFlow 6s ease-in-out infinite, floatUpDown 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes waveFlow {
+            0% { background-position: 0% 50%; filter: brightness(1) saturate(1); }
+            25% { background-position: 50% 55%; filter: brightness(1.3) saturate(1.3); }
+            50% { background-position: 100% 50%; filter: brightness(1.5) saturate(1.4); }
+            75% { background-position: 50% 45%; filter: brightness(1.3) saturate(1.2); }
+            100% { background-position: 0% 50%; filter: brightness(1) saturate(1); }
+        }
+
+        .dash-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(-45deg, rgba(112, 201, 239, 0.15), rgba(109, 184, 121, 0.181), rgb(0, 0, 0));
+            animation: waveLine 6s ease-in-out infinite;
+            transform: rotate(45deg);
+            z-index: 0;
+            filter: drop-shadow(0 0 6px rgba(35, 218, 185, 0.6));
+        }
+
+        @keyframes waveLine {
+            0% { transform: rotate(45deg) translateX(120%) scale(0.85); opacity: 0.35; }
+            25% { transform: rotate(45deg) translateX(60%) scale(1); opacity: 0.65; }
+            50% { transform: rotate(45deg) translateX(-60%) scale(1.25); opacity: 1; }
+            75% { transform: rotate(25deg) translateX(30%) scale(1); opacity: 0.7; }
+            100% { transform: rotate(45deg) translateX(120%) scale(0.85); opacity: 0.35; }
+        }
+
+        .dash-box h4, .dash-box p {
+            position: relative;
+            z-index: 1;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .dash-box:nth-child(1) { background: linear-gradient(45deg, #ff6b6b, #ff9f43, #feca57); animation-delay: 0s; }
+        .dash-box:nth-child(2) { background: linear-gradient(45deg, #1dd1a1, #00d2d3, #54a0ff); animation-delay: 0.2s; }
+        .dash-box:nth-child(3) { background: linear-gradient(45deg, #ff4d4d, #ff793f, #ffcc99); animation-delay: 0.4s; }
+        .dash-box:nth-child(4) { background: linear-gradient(45deg, #40f752, #706fd3, #9980fa); animation-delay: 0.6s; }
+        .dash-box:nth-child(5) { background: linear-gradient(45deg, #ff9ff3, #feca57, #1dd1a1); animation-delay: 0.8s; }
+        .dash-box:nth-child(6) { background: linear-gradient(45deg, #54a0ff, #00d2d3, #ff6b6b); animation-delay: 1s; }
+        .dash-box:nth-child(7) { background: linear-gradient(45deg, #ffcc99, #ff4d4d, #9980fa); animation-delay: 1.2s; }
+        .dash-box:nth-child(8) { background: linear-gradient(45deg, #706fd3, #ff9ff3, #ff793f); animation-delay: 1.4s; }
+        .dash-box:nth-child(9) { background: linear-gradient(45deg, #feca57, #4834d4, #54a0ff); animation-delay: 1.6s; }
+        .dash-box:nth-child(10) { background: linear-gradient(45deg, #00d2d3, #ff6b6b, #ffcc99); animation-delay: 1.8s; }
+        .dash-box:nth-child(11) { background: linear-gradient(45deg, #ff793f, #1dd1a1, #706fd3); animation-delay: 2s; }
+        .dash-box:nth-child(12) { background: linear-gradient(45deg, #9980fa, #ff6b6b, #feca57); animation-delay: 2.2s; }
+        .dash-box:nth-child(13) { background: linear-gradient(45deg, #54a0ff, #ffcc99, #ff4d4d); animation-delay: 2.4s; }
+        .dash-box:nth-child(14) { background: linear-gradient(45deg, #ff9ff3, #00d2d3, #4834d4); animation-delay: 2.6s; }
+        .dash-box:nth-child(15) { background: linear-gradient(45deg, #feca57, #ff793f, #1dd1a1); animation-delay: 2.8s; }
+        .dash-box:nth-child(16) { background: linear-gradient(45deg, #706fd3, #ff6b6b, #54a0ff); animation-delay: 3s; }
+        .dash-box:nth-child(17) { background: linear-gradient(45deg, #ff4d4d, #9980fa, #00d2d3); animation-delay: 3.2s; }
+        .dash-box:nth-child(18) { background: linear-gradient(45deg, #ffcc99, #ff9ff3, #4834d4); animation-delay: 3.4s; }
+        .dash-box:nth-child(19) { background: linear-gradient(45deg, #1dd1a1, #ff793f, #706fd3); animation-delay: 3.6s; }
+        .dash-box:nth-child(20) { background: linear-gradient(45deg, #54a0ff, #feca57, #ff6b6b); animation-delay: 3.8s; }
+        .dash-box:nth-child(21) { background: linear-gradient(45deg, #9980fa, #ff4d4d, #00d2d3); animation-delay: 4s; }
+        .dash-box:nth-child(22) { background: linear-gradient(45deg, #ff9ff3, #ffcc99, #ff793f); animation-delay: 4.2s; }
+        .dash-box:nth-child(23) { background: linear-gradient(45deg, #4834d4, #1dd1a1, #54a0ff); animation-delay: 4.4s; }
+        .dash-box:nth-child(24) { background: linear-gradient(45deg, #ff6b6b, #706fd3, #ff4d4d); animation-delay: 4.6s; }
+        .dash-box:nth-child(25) { background: linear-gradient(45deg, #00d2d3, #ff9ff3, #feca57); animation-delay: 4.8s; }
+        .dash-box:nth-child(26) { background: linear-gradient(45deg, #ffcc99, #54a0ff, #9980fa); animation-delay: 5s; }
+        .dash-box:nth-child(27) { background: linear-gradient(45deg, #ff793f, #ff6b6b, #1dd1a1); animation-delay: 5.2s; }
+        .dash-box:nth-child(28) { background: linear-gradient(45deg, #706fd3, #ff4d4d, #00d2d3); animation-delay: 5.4s; }
+        .dash-box:nth-child(29) { background: linear-gradient(45deg, #feca57, #9980fa, #ff9ff3); animation-delay: 5.6s; }
+        .dash-box:nth-child(30) { background: linear-gradient(45deg, #54a0ff, #ff793f, #ff6b6b); animation-delay: 5.8s; }
+
+        .dash-box:hover {
+            transform: scale(1.15) translateY(-10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            filter: brightness(1.3);
+        }
+
+        .dash-box h4 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dash-box p {
+            font-size: 28px;
+            margin: 12px 0 0;
+        }
+
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4311e8, #ff00dd, #cbd6db, #4311e8);
+            background-size: 400% 400%;
+            animation: flowGradient 5s ease infinite;
+            color: #000;
+        }
+
+        .back-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+
+        #restartModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 1px solid black;
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container, .dashboard-container {
+                padding: 20px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 20px;
+            }
+            .dash-box p {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Page -->
+    <div id="startPage">
+        <div class="box" onclick="goToQuizPage()">Start</div>
+        <div class="loading-text">Lucky</div>
+    </div>
+
+    <!-- Quiz Page -->
+    <div id="quizPage">
+        <div id="timerContainer">
+            <div>Total Time: <span id="totalTime">00:00</span></div>
+            <div id="timerBar"><div id="timerBarFill"></div></div>
+        </div>
+        <div class="container" id="quizContainer">
+            <h1>Modern His Lec - 2 </h1>
+            <div id="score"></div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-circle" id="progressCircle">0%</div>
+            </div>
+            <div id="quiz"></div>
+            <div class="controls">
+                <button class="submit" onclick="submitQuiz()">Submit</button>
+                <button class="restart" onclick="openRestartModal()">Restart</button>
+                <button class="dashboard" onclick="goToDashboard()">Show Dashboard</button>
+            </div>
+            <select id="languageToggle" onchange="toggleLanguage()">
+                <option value="hi">हिन्दी</option>
+                <option value="en">English</option>
+                <option value="both">Both</option>
+            </select>
+            <div id="restartModal">
+                <h2>Select Questions to Restart</h2>
+                <div id="questionCheckboxes"></div>
+                <button onclick="applyRestart()">Apply</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage">
+        <div class="dashboard-container">
+            <h2>🎓 Quiz Result Dashboard</h2>
+            <div class="grid" id="dashboardGrid"></div>
+            <button class="back-button" onclick="goToQuizPage()">Back to Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+    
+    // Fact-based Questions
+    {
+        "level": "Fact-based",
+        "q": "मिश्रित अर्थव्यवस्था (Mixed Economy) किसका मिश्रण है?",
+        "q_en": "What is a Mixed Economy a combination of?",
+        "options": ["साम्यवाद और पूँजीवाद", "साम्यवाद और सामंतवाद", "पूँजीवाद और सामंतवाद", "साम्यवाद और लोकतंत्र"],
+        "options_en": ["Socialism and Capitalism", "Socialism and Feudalism", "Capitalism and Feudalism", "Socialism and Democracy"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था साम्यवादी (Socialist) और पूँजीवादी (Capitalist) अर्थव्यवस्था का मिश्रण है।",
+        "explanation_en": "According to the notes, a Mixed Economy is a combination of Socialist and Capitalist economies."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था में साधनों पर किसका अधिकार होता है?",
+        "q_en": "Who has control over resources in a Socialist economy?",
+        "options": ["निजी क्षेत्र", "सरकार", "विदेशी व्यापार", "उपभोक्ता"],
+        "options_en": ["Private Sector", "Government", "Foreign Trade", "Consumers"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि साम्यवादी अर्थव्यवस्था में प्राकृतिक, औद्योगिक और मानव संसाधनों पर सरकार का अधिकार होता है।",
+        "explanation_en": "The notes mention that in a Socialist economy, the government has control over natural, industrial, and human resources."
+    },
+    {
+        "q": "उत्पादन के कितने प्रमुख कारक हैं?",
+        "q_en": "How many major Factors of Production are there?",
+        "options": ["2", "3", "4", "5"],
+        "options_en": ["2", "3", "4", "5"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, उत्पादन के चार प्रमुख कारक हैं: उद्यमी, भूमि, श्रम, और पूँजी।",
+        "explanation_en": "According to the notes, there are four major Factors of Production: Entrepreneur, Land, Labor, and Capital."
+    },
+    {
+        "q": "उद्यमी को उत्पादन के कारक के बदले क्या प्राप्त होता है?",
+        "q_en": "What does an Entrepreneur receive as payment for the Factor of Production?",
+        "options": ["किराया", "लाभ", "ब्याज", "मजदूरी"],
+        "options_en": ["Rent", "Profit", "Interest", "Wages"],
+        "answer": 1,
+        "explanation": "नोट्स में स्पष्ट है कि उद्यमी को लाभ प्राप्त होता है।",
+        "explanation_en": "The notes clearly state that an Entrepreneur receives profit."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था का मुख्य उद्देश्य क्या है?",
+        "q_en": "What is the main objective of a Socialist economy?",
+        "options": ["लाभ अधिकतम करना", "सामाजिक कल्याण", "निजी संपत्ति बढ़ाना", "विदेशी व्यापार"],
+        "options_en": ["Maximizing Profit", "Social Welfare", "Increasing Private Property", "Foreign Trade"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि साम्यवादी अर्थव्यवस्था का मुख्य उद्देश्य सामाजिक कल्याण है।",
+        "explanation_en": "The notes mention that the main objective of a Socialist economy is social welfare."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में कौन-से दो मुख्य घटक शामिल हैं?",
+        "q_en": "Which two main components are included in the Two-Sector Model?",
+        "options": ["सरकार और विदेशी व्यापार", "घर-परिवार और उत्पादक इकाई", "निजी क्षेत्र और सार्वजनिक क्षेत्र", "उपभोक्ता और सरकार"],
+        "options_en": ["Government and Foreign Trade", "Household and Firm", "Private Sector and Public Sector", "Consumers and Government"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, दो-क्षेत्रीय मॉडल में घर-परिवार (Household) और उत्पादक इकाई (Firm) शामिल हैं।",
+        "explanation_en": "According to the notes, the Two-Sector Model includes Households and Firms."
+    },
+    {
+        "q": "वास्तविक प्रवाह (Real Flow) में क्या शामिल होता है?",
+        "q_en": "What is included in Real Flow?",
+        "options": ["धन का लेन-देन", "वस्तुओं और सेवाओं का प्रवाह", "कर और सब्सिडी", "विदेशी मुद्रा"],
+        "options_en": ["Monetary Transactions", "Flow of Goods and Services", "Taxes and Subsidies", "Foreign Currency"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि वास्तविक प्रवाह में घर-परिवार से उत्पादन के कारक और फर्म से वस्तुएँ व सेवाएँ शामिल हैं।",
+        "explanation_en": "The notes state that Real Flow includes Factors of Production from Households and Goods and Services from Firms."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में कौन-सा क्षेत्र शामिल नहीं है?",
+        "q_en": "Which sector is not included in the Four-Sector Model?",
+        "options": ["घर-परिवार", "सरकार", "विदेशी व्यापार", "गैर-लाभकारी संगठन"],
+        "options_en": ["Households", "Government", "Foreign Trade", "Non-Profit Organizations"],
+        "answer": 3,
+        "explanation": "नोट्स के अनुसार, चार-क्षेत्रीय मॉडल में घर-परिवार, फर्म, सरकार, और विदेशी व्यापार शामिल हैं।",
+        "explanation_en": "According to the notes, the Four-Sector Model includes Households, Firms, Government, and Foreign Trade."
+    },
+    {
+        "q": "GDP को मापने की कितनी प्रमुख विधियाँ हैं?",
+        "q_en": "How many major methods are there to measure GDP?",
+        "options": ["2", "3", "4", "5"],
+        "options_en": ["2", "3", "4", "5"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि GDP को मापने की तीन विधियाँ हैं: आय विधि, व्यय विधि, और मूल्य वर्धन विधि।",
+        "explanation_en": "The notes mention that there are three methods to measure GDP: Income Method, Expenditure Method, and Value-Added Method."
+    },
+    {
+        "q": "निजी क्षेत्र की पूँजीवादी अर्थव्यवस्था में मुख्य भूमिका क्या है?",
+        "q_en": "What is the main role of the private sector in a Capitalist economy?",
+        "options": ["सामाजिक कल्याण", "उत्पादन", "कर संग्रहण", "नीति निर्माण"],
+        "options_en": ["Social Welfare", "Production", "Tax Collection", "Policy Making"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, पूँजीवादी अर्थव्यवस्था में उत्पादन का कार्य मुख्य रूप से निजी क्षेत्र द्वारा किया जाता है।",
+        "explanation_en": "According to the notes, production is primarily undertaken by the private sector in a Capitalist economy."
+    },
+    {
+        "q": "आयात करने से क्या प्रभाव पड़ता है?",
+        "q_en": "What is the effect of Imports?",
+        "options": ["राष्ट्रीय आय बढ़ती है", "विदेशी मुद्रा बाहर जाती है", "राष्ट्रीय व्यय कम होता है", "निवेश बढ़ता है"],
+        "options_en": ["National Income Increases", "Foreign Currency Goes Out", "National Expenditure Decreases", "Investment Increases"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि आयात से विदेशी मुद्रा बाहर जाती है, जिससे राष्ट्रीय व्यय में वृद्धि होती है, न कि आय में।",
+        "explanation_en": "The notes mention that imports lead to an outflow of foreign currency, increasing national expenditure, not income."
+    },
+    {
+        "q": "निर्यात (Export) से क्या प्रभाव पड़ता है?",
+        "q_en": "What is the effect of Exports?",
+        "options": ["विदेशी मुद्रा बाहर जाती है", "राष्ट्रीय आय बढ़ती है", "राष्ट्रीय व्यय बढ़ता है", "कर संग्रहण कम होता है"],
+        "options_en": ["Foreign Currency Goes Out", "National Income Increases", "National Expenditure Increases", "Tax Collection Decreases"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, निर्यात से विदेशी मुद्रा अर्जित होती है, जिससे राष्ट्रीय आय बढ़ती है।",
+        "explanation_en": "According to the notes, exports earn foreign currency, increasing national income."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में नीति निर्माण का कार्य कौन करता है?",
+        "q_en": "Who is responsible for policy-making in a Mixed Economy?",
+        "options": ["निजी क्षेत्र", "सरकार", "विदेशी व्यापार", "उपभोक्ता"],
+        "options_en": ["Private Sector", "Government", "Foreign Trade", "Consumers"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि मिश्रित अर्थव्यवस्था में नीति निर्माण का कार्य सरकार द्वारा किया जाता है।",
+        "explanation_en": "The notes state that policy-making in a Mixed Economy is undertaken by the government."
+    },
+    {
+        "q": "उत्पादन के कारक के रूप में पूँजी के बदले क्या प्राप्त होता है?",
+        "q_en": "What is received in return for Capital as a Factor of Production?",
+        "options": ["लाभ", "ब्याज", "किराया", "मजदूरी"],
+        "options_en": ["Profit", "Interest", "Rent", "Wages"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, पूँजी के बदले ब्याज प्राप्त होता है।",
+        "explanation_en": "According to the notes, interest is received in return for capital."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था को अन्य किस नाम से जाना जाता है?",
+        "q_en": "What is another name for a Socialist economy?",
+        "options": ["बाजार अर्थव्यवस्था", "आदेशात्मक योजना", "मिश्रित अर्थव्यवस्था", "पूँजीवादी अर्थव्यवस्था"],
+        "options_en": ["Market Economy", "Command Economy", "Mixed Economy", "Capitalist Economy"],
+        "answer": 1,
+        "explanation": "नोट्स में साम्यवादी अर्थव्यवस्था को 'Command Economy' या 'आदेशात्मक योजना' कहा गया है।",
+        "explanation_en": "The notes refer to a Socialist economy as a 'Command Economy' or 'Imperative Planning.'"
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में मौद्रिक प्रवाह (Monetary Flow) में क्या शामिल है?",
+        "q_en": "What is included in Monetary Flow in the Two-Sector Model?",
+        "options": ["वस्तुओं और सेवाओं का प्रवाह", "उत्पादन के कारकों का मूल्य", "कर और सब्सिडी", "प्राकृतिक संसाधन"],
+        "options_en": ["Flow of Goods and Services", "Value of Factors of Production", "Taxes and Subsidies", "Natural Resources"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, मौद्रिक प्रवाह में फर्म द्वारा घर-परिवार को उत्पादन के कारकों (वेतन, ब्याज, किराया, लाभ) का भुगतान और घर-परिवार द्वारा वस्तुओं और सेवाओं की कीमत का भुगतान शामिल है।",
+        "explanation_en": "According to the notes, Monetary Flow includes payments by Firms to Households for Factors of Production (wages, interest, rent, profit) and payments by Households for goods and services."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में सरकार घर-परिवार को क्या प्रदान करती है?",
+        "q_en": "What does the government provide to households in the Four-Sector Model?",
+        "options": ["कर", "सब्सिडी और सेवाएँ", "निर्यात", "आयात"],
+        "options_en": ["Taxes", "Subsidies and Services", "Exports", "Imports"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि सरकार घर-परिवार को सब्सिडी और सेवाएँ (जैसे शिक्षा, स्वास्थ्य, सुरक्षा) प्रदान करती है।",
+        "explanation_en": "The notes mention that the government provides subsidies and services (like education, health, security) to households."
+    },
+    {
+        "q": "पूँजीवादी अर्थव्यवस्था का मुख्य उद्देश्य क्या है?",
+        "q_en": "What is the main objective of a Capitalist economy?",
+        "options": ["सामाजिक कल्याण", "लाभ अधिकतम करना", "कर संग्रहण", "नीति निर्माण"],
+        "options_en": ["Social Welfare", "Maximizing Profit", "Tax Collection", "Policy Making"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, पूँजीवादी अर्थव्यवस्था का मुख्य उद्देश्य लाभ को अधिकतम करना है।",
+        "explanation_en": "According to the notes, the main objective of a Capitalist economy is to maximize profit."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था का उदाहरण कौन-सा देश है?",
+        "q_en": "Which country is an example of a Mixed Economy?",
+        "options": ["भारत", "क्यूबा", "उत्तर कोरिया", "संयुक्त राज्य अमेरिका"],
+        "options_en": ["India", "Cuba", "North Korea", "United States"],
+        "answer": 0,
+        "explanation": "नोट्स में भारत को मिश्रित अर्थव्यवस्था के उदाहरण के रूप में उल्लेख किया गया है।",
+        "explanation_en": "The notes mention India as an example of a Mixed Economy."
+    },
+    {
+        "q": "आर्थिक प्रवाह में रिसाव (Leakage) का उदाहरण क्या है?",
+        "q_en": "What is an example of Leakage in economic flow?",
+        "options": ["निवेश", "बचत", "निर्यात", "सरकारी व्यय"],
+        "options_en": ["Investment", "Saving", "Export", "Government Expenditure"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, बचत को रिसाव (Leakage) माना जाता है क्योंकि यह आर्थिक प्रवाह से बाहर जाती है।",
+        "explanation_en": "According to the notes, saving is considered a Leakage as it exits the economic flow."
+    },
+
+    // Medium Difficulty Questions
+    {
+        "level": "Medium Difficulty",
+        "q": "मिश्रित अर्थव्यवस्था में संसाधनों का स्वामित्व किसके पास होता है?",
+        "q_en": "Who owns the resources in a Mixed Economy?",
+        "options": ["केवल सरकार", "केवल निजी क्षेत्र", "आंशिक रूप से सरकार और आंशिक रूप से निजी क्षेत्र", "केवल विदेशी व्यापार"],
+        "options_en": ["Only Government", "Only Private Sector", "Partially Government and Partially Private Sector", "Only Foreign Trade"],
+        "answer": 2,
+        "explanation": "नोट्स में कहा गया है कि मिश्रित अर्थव्यवस्था में संसाधनों का स्वामित्व आंशिक रूप से सरकार (जैसे खनिज, रेलवे) और आंशिक रूप से निजी व्यक्तियों/कंपनियों (जैसे कृषि भूमि, कारखाने) के पास होता है।",
+        "explanation_en": "The notes state that in a Mixed Economy, resource ownership is partially with the government (e.g., minerals, railways) and partially with private individuals/companies (e.g., agricultural land, factories)."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में वास्तविक और मौद्रिक प्रवाह की दिशा कैसी होती है?",
+        "q_en": "What is the direction of Real and Monetary Flow in the Two-Sector Model?",
+        "options": ["समान दिशा में", "विपरीत दिशा में", "कोई दिशा नहीं", "केवल एक दिशा में"],
+        "options_en": ["Same Direction", "Opposite Direction", "No Direction", "Only One Direction"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, वास्तविक और मौद्रिक प्रवाह एक-दूसरे के विपरीत दिशा में होते हैं।",
+        "explanation_en": "According to the notes, Real and Monetary Flows are in opposite directions."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में विदेशी व्यापार से क्या संबंधित है?",
+        "q_en": "What is related to the Foreign Sector in the Four-Sector Model?",
+        "options": ["कर और सब्सिडी", "निर्यात और आयात", "वेतन और ब्याज", "शिक्षा और स्वास्थ्य"],
+        "options_en": ["Taxes and Subsidies", "Exports and Imports", "Wages and Interest", "Education and Health"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि विदेशी व्यापार निर्यात और आयात से संबंधित है।",
+        "explanation_en": "The notes mention that the Foreign Sector is related to exports and imports."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था में उत्पादन से संबंधित निर्णय कौन लेता है?",
+        "q_en": "Who makes decisions related to production in a Socialist economy?",
+        "options": ["निजी क्षेत्र", "उपभोक्ता", "सरकार", "विदेशी व्यापार"],
+        "options_en": ["Private Sector", "Consumers", "Government", "Foreign Trade"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, साम्यवादी अर्थव्यवस्था में क्या उत्पादन होगा, किसके लिए होगा, और मूल्य क्या होगा, यह सरकार द्वारा नियंत्रित होता है।",
+        "explanation_en": "According to the notes, in a Socialist economy, decisions about what to produce, for whom, and at what price are controlled by the government."
+    },
+    {
+        "q": "कुल आय (Y) का सूत्र क्या है?",
+        "q_en": "What is the formula for Total Income (Y)?",
+        "options": ["Y = C + I", "Y = C + I + G", "Y = C + I + G + (X – M)", "Y = C + G"],
+        "options_en": ["Y = C + I", "Y = C + I + G", "Y = C + I + G + (X – M)", "Y = C + G"],
+        "answer": 2,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) दिया गया है, जहाँ C = उपभोग, I = निवेश, G = सरकारी व्यय, X = निर्यात, और M = आयात।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M), where C = Consumption, I = Investment, G = Government Expenditure, X = Exports, and M = Imports."
+    },
+    {
+        "q": "पूँजीवादी अर्थव्यवस्था में उत्पादन और मूल्य निर्धारण को कौन नियंत्रित करता है?",
+        "q_en": "Who controls production and pricing in a Capitalist economy?",
+        "options": ["सरकार", "बाजार", "उपभोक्ता", "विदेशी व्यापार"],
+        "options_en": ["Government", "Market", "Consumers", "Foreign Trade"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि पूँजीवादी अर्थव्यवस्था में उत्पादन और मूल्य निर्धारण माँग और आपूर्ति की शक्तियों द्वारा बाजार में तय होता है।",
+        "explanation_en": "The notes state that in a Capitalist economy, production and pricing are determined by the market through demand and supply forces."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में PPP मॉडल का क्या अर्थ है?",
+        "q_en": "What does the PPP model mean in a Mixed Economy?",
+        "options": ["निजी उत्पादन योजना", "सार्वजनिक-निजी सहभागिता", "सामाजिक कल्याण योजना", "विदेशी व्यापार नीति"],
+        "options_en": ["Private Production Plan", "Public-Private Partnership", "Social Welfare Plan", "Foreign Trade Policy"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, PPP का अर्थ है Public Private Partnership, जो बुनियादी ढांचे जैसे सड़क, बिजली, शिक्षा आदि में लागू होता है।",
+        "explanation_en": "According to the notes, PPP stands for Public-Private Partnership, applied in infrastructure like roads, electricity, education, etc."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में घर-परिवार फर्म को क्या प्रदान करते हैं?",
+        "q_en": "What do Households provide to Firms in the Two-Sector Model?",
+        "options": ["कर", "उत्पादन के कारक", "सब्सिडी", "निर्यात"],
+        "options_en": ["Taxes", "Factors of Production", "Subsidies", "Exports"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि घर-परिवार फर्म को उत्पादन के कारक (भूमि, श्रम, पूँजी, उद्यमिता) प्रदान करते हैं।",
+        "explanation_en": "The notes mention that Households provide Firms with Factors of Production (land, labor, capital, entrepreneurship)."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में सरकार फर्म को क्या प्रदान करती है?",
+        "q_en": "What does the Government provide to Firms in the Four-Sector Model?",
+        "options": ["वस्तुएँ और सेवाएँ", "सब्सिडी और सेवाएँ", "मजदूरी और लाभ", "आयात"],
+        "options_en": ["Goods and Services", "Subsidies and Services", "Wages and Profit", "Imports"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, सरकार फर्म को सब्सिडी और सेवाएँ (जैसे अवसंरचना) प्रदान करती है।",
+        "explanation_en": "According to the notes, the government provides Firms with subsidies and services (like infrastructure)."
+    },
+    {
+        "q": "प्रेषण आय (Remittances) का क्या अर्थ है?",
+        "q_en": "What is meant by Remittances?",
+        "options": ["विदेशी व्यापार से प्राप्त आय", "विदेश में कार्यरत नागरिकों द्वारा भेजी गई धनराशि", "सरकारी सब्सिडी", "निजी क्षेत्र का निवेश"],
+        "options_en": ["Income from Foreign Trade", "Money Sent by Citizens Working Abroad", "Government Subsidies", "Private Sector Investment"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि प्रेषण आय वह धनराशि है जो विदेश में कार्यरत नागरिक अपने देश को भेजते हैं।",
+        "explanation_en": "The notes state that remittances are the money sent by citizens working abroad to their home country."
+    },
+    {
+        "q": "आर्थिक प्रवाह में इंजेक्शन (Injection) का उदाहरण क्या है?",
+        "q_en": "What is an example of Injection in economic flow?",
+        "options": ["बचत", "कर", "निवेश", "आयात"],
+        "options_en": ["Saving", "Taxes", "Investment", "Imports"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, निवेश को आर्थिक प्रवाह में इंजेक्शन माना जाता है क्योंकि यह प्रवाह में धन जोड़ता है।",
+        "explanation_en": "According to the notes, investment is considered an Injection in economic flow as it adds money to the flow."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था में संसाधनों का वितरण कौन नियंत्रित करता है?",
+        "q_en": "Who controls the distribution of resources in a Socialist economy?",
+        "options": ["निजी क्षेत्र", "सरकार", "उपभोक्ता", "बाजार"],
+        "options_en": ["Private Sector", "Government", "Consumers", "Market"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि साम्यवादी अर्थव्यवस्था में संसाधनों का वितरण सरकार द्वारा नियंत्रित होता है।",
+        "explanation_en": "The notes mention that in a Socialist economy, the distribution of resources is controlled by the government."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में घर-परिवार सरकार को क्या प्रदान करते हैं?",
+        "q_en": "What do Households provide to the Government in the Four-Sector Model?",
+        "options": ["सब्सिडी", "श्रम और कर", "निर्यात", "निवेश"],
+        "options_en": ["Subsidies", "Labor and Taxes", "Exports", "Investment"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, घर-परिवार सरकार को श्रम और कर प्रदान करते हैं।",
+        "explanation_en": "According to the notes, Households provide labor and taxes to the government."
+    },
+    {
+        "q": "पूँजीवादी अर्थव्यवस्था में Laissez Faire नीति का क्या अर्थ है?",
+        "q_en": "What does the Laissez Faire policy mean in a Capitalist economy?",
+        "options": ["सरकारी हस्तक्षेप", "बाजार की स्वतंत्रता", "सामाजिक कल्याण", "कर संग्रहण"],
+        "options_en": ["Government Intervention", "Market Freedom", "Social Welfare", "Tax Collection"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि Laissez Faire का अर्थ है 'Let it be' या बाजार को स्वतंत्र रूप से कार्य करने देना।",
+        "explanation_en": "The notes state that Laissez Faire means 'Let it be' or allowing the market to function freely."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में संकेतमक नियोजन (Indicative Planning) का क्या अर्थ है?",
+        "q_en": "What does Indicative Planning mean in a Mixed Economy?",
+        "options": ["बाध्यकारी नियोजन", "निजी क्षेत्र को दिशा-निर्देश देना", "पूर्ण सरकारी नियंत्रण", "विदेशी व्यापार नीति"],
+        "options_en": ["Mandatory Planning", "Providing Guidelines to Private Sector", "Complete Government Control", "Foreign Trade Policy"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, संकेतमक नियोजन में सरकार निजी क्षेत्र को दिशा-निर्देश देती है, न कि बाध्यकारी नियोजन।",
+        "explanation_en": "According to the notes, Indicative Planning involves the government providing guidelines to the private sector, not mandatory planning."
+    },
+    {
+        "q": "उत्पादन के कारकों की आय मुख्य रूप से किस क्षेत्र के पास जाती है?",
+        "q_en": "To which sector does the income from Factors of Production primarily go?",
+        "options": ["सरकार", "घर-परिवार", "विदेशी व्यापार", "निजी क्षेत्र"],
+        "options_en": ["Government", "Households", "Foreign Trade", "Private Sector"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि उत्पादन के कारकों की आय मुख्य रूप से घर-परिवार क्षेत्र के पास जाती है।",
+        "explanation_en": "The notes mention that the income from Factors of Production primarily goes to the Household sector."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में फर्म घर-परिवार को क्या प्रदान करती है?",
+        "q_en": "What do Firms provide to Households in the Two-Sector Model?",
+        "options": ["कर", "वेतन, ब्याज, किराया, लाभ", "सब्सिडी", "निर्यात"],
+        "options_en": ["Taxes", "Wages, Interest, Rent, Profit", "Subsidies", "Exports"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, फर्म घर-परिवार को उत्पादन के कारकों के बदले वेतन, ब्याज, किराया, और लाभ प्रदान करती है।",
+        "explanation_en": "According to the notes, Firms provide Households with wages, interest, rent, and profit in return for Factors of Production."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में फर्म सरकार को क्या प्रदान करती है?",
+        "q_en": "What do Firms provide to the Government in the Four-Sector Model?",
+        "options": ["वस्तुएँ और सेवाएँ", "कर", "सब्सिडी", "प्रेषण आय"],
+        "options_en": ["Goods and Services", "Taxes", "Subsidies", "Remittances"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि फर्म सरकार को कर भुगतान करती हैं।",
+        "explanation_en": "The notes mention that Firms pay taxes to the government."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में सार्वजनिक और निजी क्षेत्र का क्या संबंध है?",
+        "q_en": "What is the relationship between the public and private sectors in a Mixed Economy?",
+        "options": ["प्रतिस्पर्धी", "पूरक", "स्वतंत्र", "विरोधी"],
+        "options_en": ["Competitive", "Complementary", "Independent", "Opposing"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में सार्वजनिक और निजी क्षेत्र एक-दूसरे के पूरक के रूप में सह-अस्तित्व में कार्य करते हैं।",
+        "explanation_en": "According to the notes, in a Mixed Economy, the public and private sectors work as complementary to each other."
+    },
+    {
+        "q": "आर्थिक प्रवाह में बचत को क्या माना जाता है?",
+        "q_en": "What is Saving considered in economic flow?",
+        "options": ["इंजेक्शन", "रिसाव", "निर्यात", "उपभोग"],
+        "options_en": ["Injection", "Leakage", "Export", "Consumption"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि बचत को आर्थिक प्रवाह में रिसाव (Leakage) माना जाता है।",
+        "explanation_en": "The notes state that saving is considered a Leakage in economic flow."
+    },
+    {
+        "q": "GDP की गणना में कौन-सी विधि शामिल नहीं है?",
+        "q_en": "Which method is not included in the calculation of GDP?",
+        "options": ["आय विधि", "व्यय विधि", "मूल्य वर्धन विधि", "कर विधि"],
+        "options_en": ["Income Method", "Expenditure Method", "Value-Added Method", "Tax Method"],
+        "answer": 3,
+        "explanation": "नोट्स के अनुसार, GDP की गणना तीन विधियों से की जाती है: आय विधि, व्यय विधि, और मूल्य वर्धन विधि। कर विधि कोई मान्य विधि नहीं है।",
+        "explanation_en": "According to the notes, GDP is calculated using three methods: Income Method, Expenditure Method, and Value-Added Method. The Tax Method is not a valid method."
+    },
+    {
+        "q": "पूँजीवादी अर्थव्यवस्था में प्रभावी माँग (Effective Demand) का आधार क्या है?",
+        "q_en": "What is the basis of Effective Demand in a Capitalist economy?",
+        "options": ["सरकारी नीति", "क्रय शक्ति", "सामाजिक कल्याण", "कर संग्रहण"],
+        "options_en": ["Government Policy", "Purchasing Power", "Social Welfare", "Tax Collection"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि पूँजीवादी अर्थव्यवस्था में प्रभावी माँग क्रय शक्ति पर आधारित होती है।",
+        "explanation_en": "The notes mention that in a Capitalist economy, Effective Demand is based on purchasing power."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में उत्पादन का कार्य कौन करता है?",
+        "q_en": "Who undertakes production in a Mixed Economy?",
+        "options": ["केवल सरकार", "केवल निजी क्षेत्र", "सरकार और निजी क्षेत्र दोनों", "केवल विदेशी व्यापार"],
+        "options_en": ["Only Government", "Only Private Sector", "Both Government and Private Sector", "Only Foreign Trade"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में उत्पादन का कार्य सरकार (सार्वजनिक क्षेत्र) और निजी क्षेत्र दोनों द्वारा किया जाता है।",
+        "explanation_en": "According to the notes, in a Mixed Economy, production is undertaken by both the government (public sector) and the private sector."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में विदेशी व्यापार से आय का उदाहरण क्या है?",
+        "q_en": "What is an example of income from the Foreign Sector in the Four-Sector Model?",
+        "options": ["कर", "विदेशी निवेश", "सब्सिडी", "वेतन"],
+        "options_en": ["Taxes", "Foreign Investment", "Subsidies", "Wages"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि विदेशी निवेश और विदेशी परियोजनाओं से आय विदेशी व्यापार से आय के उदाहरण हैं।",
+        "explanation_en": "The notes mention that foreign investment and income from foreign projects are examples of income from the Foreign Sector."
+    },
+    {
+        "q": "आर्थिक स्थिरता बनाए रखना किसका मुख्य उद्देश्य है?",
+        "q_en": "Whose main objective is to maintain economic stability?",
+        "options": ["निजी क्षेत्र", "सरकार", "उपभोक्ता", "विदेशी व्यापार"],
+        "options_en": ["Private Sector", "Government", "Consumers", "Foreign Trade"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, सरकार का मुख्य उद्देश्य आर्थिक स्थिरता बनाए रखना और सार्वजनिक सेवाएँ प्रदान करना है।",
+        "explanation_en": "According to the notes, the government's main objective is to maintain economic stability and provide public services."
+    },
+
+    // Confusing/Tricky Questions
+    {
+        "level": "Confusing/Tricky",
+        "q": "यदि कोई देश केवल आयात करता है और निर्यात नहीं करता, तो राष्ट्रीय आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "If a country only imports and does not export, what will be the effect on National Income?",
+        "options": ["राष्ट्रीय आय बढ़ेगी", "राष्ट्रीय आय अपरिवर्तित रहेगी", "राष्ट्रीय आय कम होगी", "कोई प्रभाव नहीं"],
+        "options_en": ["National Income Increases", "National Income Remains Unchanged", "National Income Decreases", "No Effect"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, आयात से विदेशी मुद्रा बाहर जाती है, जिससे राष्ट्रीय व्यय बढ़ता है, लेकिन राष्ट्रीय आय में कमी आती है क्योंकि इसमें निर्यात की आय शामिल नहीं होती। यह भ्रामक है क्योंकि आयात को कभी-कभी आय के रूप में गलत समझा जाता है।",
+        "explanation_en": "According to the notes, imports lead to an outflow of foreign currency, increasing national expenditure but decreasing national income as export income is absent. This is tricky as imports are sometimes mistaken for income."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में यदि घर-परिवार बचत करते हैं, तो मौद्रिक प्रवाह पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In the Two-Sector Model, if Households save, what will be the effect on Monetary Flow?",
+        "options": ["मौद्रिक प्रवाह बढ़ेगा", "मौद्रिक प्रवाह कम होगा", "मौद्रिक प्रवाह अपरिवर्तित रहेगा", "मौद्रिक प्रवाह बंद हो जाएगा"],
+        "options_en": ["Monetary Flow Increases", "Monetary Flow Decreases", "Monetary Flow Remains Unchanged", "Monetary Flow Stops"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि बचत को आर्थिक प्रवाह में रिसाव (Leakage) माना जाता है, जो मौद्रिक प्रवाह को कम करता है। यह भ्रामक है क्योंकि बचत को कभी-कभी निवेश के साथ जोड़ा जाता है।",
+        "explanation_en": "The notes state that saving is considered a Leakage in economic flow, reducing Monetary Flow. This is tricky as saving is sometimes confused with investment."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था में उत्पादन के कारकों की आय किसे प्राप्त होती है?",
+        "q_en": "Who receives the income from Factors of Production in a Socialist economy?",
+        "options": ["निजी क्षेत्र", "सरकार", "घर-परिवार", "विदेशी व्यापार"],
+        "options_en": ["Private Sector", "Government", "Households", "Foreign Trade"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, उत्पादन के कारकों की आय मुख्य रूप से घर-परिवार को प्राप्त होती है। यह भ्रामक है क्योंकि साम्यवादी अर्थव्यवस्था में सरकार का नियंत्रण होने के कारण लोग यह मान सकते हैं कि आय सरकार को जाती है।",
+        "explanation_en": "According to the notes, the income from Factors of Production primarily goes to Households. This is tricky as people may assume it goes to the government due to its control in a Socialist economy."
+    },
+    {
+        "q": "यदि सरकार सब्सिडी देती है, तो यह आर्थिक प्रवाह में क्या माना जाता है?",
+        "q_en": "If the government provides subsidies, what is it considered in economic flow?",
+        "options": ["रिसाव", "इंजेक्शन", "उपभोग", "कर"],
+        "options_en": ["Leakage", "Injection", "Consumption", "Taxes"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि सरकारी व्यय और सब्सिडी को आर्थिक प्रवाह में इंजेक्शन माना जाता है। यह भ्रामक है क्योंकि सब्सिडी को कभी-कभी व्यय के रूप में गलत समझा जाता है।",
+        "explanation_en": "The notes state that government expenditure and subsidies are considered Injections in economic flow. This is tricky as subsidies are sometimes mistaken for expenditure."
+    },
+    {
+        "q": "पूँजीवादी अर्थव्यवस्था में यदि माँग बढ़ती है, तो क्या होगा?",
+        "q_en": "In a Capitalist economy, if demand increases, what will happen?",
+        "options": ["उत्पादन कम होगा", "उत्पादन बढ़ेगा", "कर बढ़ेगा", "सब्सिडी बढ़ेगी"],
+        "options_en": ["Production Decreases", "Production Increases", "Taxes Increase", "Subsidies Increase"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, पूँजीवादी अर्थव्यवस्था में माँग और आपूर्ति उत्पादन को नियंत्रित करती हैं। बढ़ती माँग से उत्पादन बढ़ता है। यह भ्रामक है क्योंकि लोग इसे सरकारी हस्तक्षेप से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in a Capitalist economy, demand and supply control production. Increased demand leads to increased production. This is tricky as people may associate it with government intervention."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में यदि विदेशी व्यापार शून्य है, तो कुल आय का सूत्र क्या होगा?",
+        "q_en": "In the Four-Sector Model, if foreign trade is zero, what will be the formula for Total Income?",
+        "options": ["Y = C + I", "Y = C + I + G", "Y = C + G", "Y = C + I + G + X"],
+        "options_en": ["Y = C + I", "Y = C + I + G", "Y = C + G", "Y = C + I + G + X"],
+        "answer": 1,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) है। यदि विदेशी व्यापार (X – M) शून्य है, तो सूत्र Y = C + I + G रहता है। यह भ्रामक है क्योंकि लोग इसे दो-क्षेत्रीय मॉडल से जोड़ सकते हैं।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M). If foreign trade (X – M) is zero, the formula becomes Y = C + I + G. This is tricky as people may confuse it with the Two-Sector Model."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में यदि निजी क्षेत्र उत्पादन बंद कर दे, तो क्या होगा?",
+        "q_en": "In a Mixed Economy, if the private sector stops production, what will happen?",
+        "options": ["सरकार उत्पादन करेगी", "राष्ट्रीय आय शून्य हो जाएगी", "विदेशी व्यापार बढ़ेगा", "उपभोग बंद हो जाएगा"],
+        "options_en": ["Government Will Produce", "National Income Becomes Zero", "Foreign Trade Increases", "Consumption Stops"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में उत्पादन का कार्य सरकार और निजी क्षेत्र दोनों द्वारा किया जाता है। यदि निजी क्षेत्र उत्पादन बंद करता है, तो सरकार उत्पादन जारी रख सकती है। यह भ्रामक है क्योंकि लोग सोच सकते हैं कि अर्थव्यवस्था पूरी तरह रुक जाएगी।",
+        "explanation_en": "According to the notes, in a Mixed Economy, production is undertaken by both the government and private sector. If the private sector stops production, the government can continue production. This is tricky as people may think the economy will stop entirely."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में यदि घर-परिवार उपभोग बंद कर दें, तो क्या होगा?",
+        "q_en": "In the Two-Sector Model, if Households stop consumption, what will happen?",
+        "options": ["फर्म उत्पादन बंद कर देंगी", "मौद्रिक प्रवाह बढ़ेगा", "वास्तविक प्रवाह बढ़ेगा", "राष्ट्रीय आय बढ़ेगी"],
+        "options_en": ["Firms Stop Production", "Monetary Flow Increases", "Real Flow Increases", "National Income Increases"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, दो-क्षेत्रीय मॉडल में घर-परिवार द्वारा उपभोग फर्मों के उत्पादन को प्रेरित करता है। यदि उपभोग बंद हो जाता है, तो फर्म उत्पादन बंद कर देंगी। यह भ्रामक है क्योंकि लोग सोच सकते हैं कि प्रवाह अपरिवर्तित रहेगा।",
+        "explanation_en": "According to the notes, in the Two-Sector Model, Household consumption drives Firm production. If consumption stops, Firms will stop production. This is tricky as people may think the flow remains unchanged."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था में यदि सरकार उत्पादन नियंत्रण छोड़ दे, तो क्या होगा?",
+        "q_en": "In a Socialist economy, if the government relinquishes production control, what will happen?",
+        "options": ["अर्थव्यवस्था पूँजीवादी हो जाएगी", "सामाजिक कल्याण बढ़ेगा", "संसाधन वितरण बंद हो जाएगा", "कर संग्रहण बढ़ेगा"],
+        "options_en": ["Economy Becomes Capitalist", "Social Welfare Increases", "Resource Distribution Stops", "Tax Collection Increases"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, साम्यवादी अर्थव्यवस्था में सरकार उत्पादन और संसाधन वितरण को नियंत्रित करती है। यदि सरकार नियंत्रण छोड़ देती है, तो यह पूँजीवादी अर्थव्यवस्था की विशेषताओं को अपनाने लगेगी। यह भ्रामक है क्योंकि लोग सामाजिक कल्याण से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in a Socialist economy, the government controls production and resource distribution. If the government relinquishes control, the economy will adopt Capitalist characteristics. This is tricky as people may associate it with social welfare."
+    },
+    {
+        "q": "यदि बचत को वित्तीय संस्थानों में निवेश नहीं किया जाता, तो इसे क्या माना जाता है?",
+        "q_en": "If savings are not invested in financial institutions, what are they considered?",
+        "options": ["इंजेक्शन", "रिसाव", "उपभोग", "निर्यात"],
+        "options_en": ["Injection", "Leakage", "Consumption", "Export"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि यदि बचत को वित्तीय संस्थानों में निवेश नहीं किया जाता, तो इसे रिसाव (Leakage) माना जाता है। यह भ्रामक है क्योंकि लोग इसे निवेश से जोड़ सकते हैं।",
+        "explanation_en": "The notes state that if savings are not invested in financial institutions, they are considered a Leakage. This is tricky as people may confuse it with investment."
+    },
+
+    // Logic-based Questions
+    {
+        "level": "Logic-based",
+        "q": "यदि कोई अर्थव्यवस्था केवल साम्यवादी विशेषताओं को अपनाए, तो उत्पादन के कारकों का स्वामित्व कौन संभालेगा?",
+        "q_en": "If an economy adopts only Socialist characteristics, who will control the ownership of Factors of Production?",
+        "options": ["निजी क्षेत्र", "सरकार", "उपभोक्ता", "विदेशी व्यापार"],
+        "options_en": ["Private Sector", "Government", "Consumers", "Foreign Trade"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, साम्यवादी अर्थव्यवस्था में प्राकृतिक, औद्योगिक और मानव संसाधनों पर सरकार का अधिकार होता है। तार्किक रूप से, यदि केवल साम्यवादी विशेषताएँ अपनाई जाती हैं, तो सरकार ही स्वामित्व संभालेगी।",
+        "explanation_en": "According to the notes, in a Socialist economy, the government controls natural, industrial, and human resources. Logically, if only Socialist characteristics are adopted, the government will control ownership."
+    },
+    {
+        "q": "यदि घर-परिवार फर्म को उत्पादन के कारक प्रदान नहीं करते, तो दो-क्षेत्रीय मॉडल में क्या होगा?",
+        "q_en": "If Households do not provide Factors of Production to Firms, what will happen in the Two-Sector Model?",
+        "options": ["फर्म उपभोग बढ़ाएँगी", "उत्पादन बंद हो जाएगा", "मौद्रिक प्रवाह बढ़ेगा", "वास्तविक प्रवाह अपरिवर्तित रहेगा"],
+        "options_en": ["Firms Increase Consumption", "Production Stops", "Monetary Flow Increases", "Real Flow Remains Unchanged"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, दो-क्षेत्रीय मॉडल में घर-परिवार फर्म को उत्पादन के कारक प्रदान करते हैं। तार्किक रूप से, यदि ये कारक उपलब्ध नहीं होते, तो फर्म उत्पादन नहीं कर पाएँगी।",
+        "explanation_en": "According to the notes, in the Two-Sector Model, Households provide Firms with Factors of Production. Logically, if these factors are not provided, Firms cannot produce."
+    },
+    {
+        "q": "यदि सरकार कर संग्रहण बंद कर दे, तो चार-क्षेत्रीय मॉडल में क्या प्रभाव पड़ेगा?",
+        "q_en": "If the Government stops tax collection, what will be the effect in the Four-Sector Model?",
+        "options": ["सब्सिडी और सेवाएँ बंद हो जाएँगी", "निर्यात बढ़ेगा", "आयात कम होगा", "निवेश बढ़ेगा"],
+        "options_en": ["Subsidies and Services Stop", "Exports Increase", "Imports Decrease", "Investment Increases"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि सरकार करों के माध्यम से राजस्व एकत्र करती है और उसका उपयोग सब्सिडी और सेवाओं के लिए करती है। तार्किक रूप से, यदि कर संग्रहण बंद हो जाता है, तो सरकार के पास सब्सिडी और सेवाएँ प्रदान करने के लिए संसाधन नहीं होंगे।",
+        "explanation_en": "The notes state that the government collects revenue through taxes to fund subsidies and services. Logically, if tax collection stops, the government will lack resources to provide subsidies and services."
+    },
+    {
+        "q": "यदि पूँजीवादी अर्थव्यवस्था में माँग पूरी तरह से समाप्त हो जाए, तो क्या होगा?",
+        "q_en": "If demand completely disappears in a Capitalist economy, what will happen?",
+        "options": ["उत्पादन जारी रहेगा", "उत्पादन बंद हो जाएगा", "सरकारी हस्तक्षेप बढ़ेगा", "सामाजिक कल्याण बढ़ेगा"],
+        "options_en": ["Production Continues", "Production Stops", "Government Intervention Increases", "Social Welfare Increases"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, पूँजीवादी अर्थव्यवस्था में उत्पादन माँग और आपूर्ति पर आधारित होता है। तार्किक रूप से, यदि माँग समाप्त हो जाती है, तो उत्पादन बंद हो जाएगा।",
+        "explanation_en": "According to the notes, in a Capitalist economy, production is driven by demand and supply. Logically, if demand disappears, production will stop."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में यदि निजी क्षेत्र और सरकार दोनों उत्पादन करें, तो क्या होगा?",
+        "q_en": "In a Mixed Economy, if both the private sector and government undertake production, what will happen?",
+        "options": ["संसाधनों का स्वामित्व केवल सरकार के पास होगा", "संसाधनों का स्वामित्व साझा होगा", "उत्पादन बंद हो जाएगा", "कर संग्रहण बंद हो जाएगा"],
+        "options_en": ["Resource Ownership Solely with Government", "Resource Ownership Shared", "Production Stops", "Tax Collection Stops"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में संसाधनों का स्वामित्व आंशिक रूप से सरकार और आंशिक रूप से निजी क्षेत्र के पास होता है। तार्किक रूप से, दोनों के उत्पादन करने पर स्वामित्व साझा रहेगा।",
+        "explanation_en": "According to the notes, in a Mixed Economy, resource ownership is partially with the government and partially with the private sector. Logically, if both produce, ownership remains shared."
+    },
+    {
+        "q": "यदि कोई देश निर्यात और आयात दोनों बंद कर दे, तो चार-क्षेत्रीय मॉडल में कुल आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "If a country stops both exports and imports, what will be the effect on Total Income in the Four-Sector Model?",
+        "options": ["कुल आय बढ़ेगी", "कुल आय कम होगी", "कुल आय अपरिवर्तित रहेगी", "कुल आय शून्य हो जाएगी"],
+        "options_en": ["Total Income Increases", "Total Income Decreases", "Total Income Remains Unchanged", "Total Income Becomes Zero"],
+        "answer": 2,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) है। यदि X और M दोनों शून्य हैं, तो कुल आय Y = C + I + G होगी। तार्किक रूप से, यह अन्य कारकों पर निर्भर करेगा, लेकिन विदेशी व्यापार के अभाव में कुल आय पर कोई अतिरिक्त प्रभाव नहीं पड़ेगा।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M). If both X and M are zero, Total Income becomes Y = C + I + G. Logically, it depends on other factors, but the absence of foreign trade has no additional effect."
+    },
+    {
+        "q": "यदि घर-परिवार सभी आय को उपभोग में खर्च कर दें, तो आर्थिक प्रवाह में क्या होगा?",
+        "q_en": "If Households spend all their income on consumption, what will happen in the economic flow?",
+        "options": ["रिसाव बढ़ेगा", "रिसाव शून्य होगा", "इंजेक्शन कम होगा", "निर्यात बढ़ेगा"],
+        "options_en": ["Leakage Increases", "Leakage Becomes Zero", "Injection Decreases", "Export Increases"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, बचत को रिसाव माना जाता है। तार्किक रूप से, यदि सारी आय उपभोग में खर्च हो जाती है, तो बचत (रिसाव) शून्य होगी।",
+        "explanation_en": "According to the notes, saving is considered a Leakage. Logically, if all income is spent on consumption, saving (Leakage) becomes zero."
+    },
+    {
+        "q": "यदि फर्म घर-परिवार से उत्पादन के कारक प्राप्त नहीं करती, तो वास्तविक प्रवाह पर क्या प्रभाव पड़ेगा?",
+        "q_en": "If Firms do not receive Factors of Production from Households, what will be the effect on Real Flow?",
+        "options": ["वास्तविक प्रवाह बढ़ेगा", "वास्तविक प्रवाह बंद हो जाएगा", "वास्तविक प्रवाह अपरिवर्तित रहेगा", "मौद्रिक प्रवाह बढ़ेगा"],
+        "options_en": ["Real Flow Increases", "Real Flow Stops", "Real Flow Remains Unchanged", "Monetary Flow Increases"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, वास्तविक प्रवाह में घर-परिवार से फर्म को उत्पादन के कारक और फर्म से घर-परिवार को वस्तुएँ और सेवाएँ शामिल हैं। तार्किक रूप से, यदि कारक उपलब्ध नहीं होंगे, तो वास्तविक प्रवाह बंद हो जाएगा।",
+        "explanation_en": "According to the notes, Real Flow includes Factors of Production from Households to Firms and goods and services from Firms to Households. Logically, if factors are not provided, Real Flow stops."
+    },
+    {
+        "q": "यदि सरकार निवेश को प्रोत्साहन देती है, तो आर्थिक प्रवाह में क्या होगा?",
+        "q_en": "If the Government encourages investment, what will happen in the economic flow?",
+        "options": ["रिसाव बढ़ेगा", "इंजेक्शन बढ़ेगा", "उपभोग कम होगा", "निर्यात कम होगा"],
+        "options_en": ["Leakage Increases", "Injection Increases", "Consumption Decreases", "Export Decreases"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि निवेश को आर्थिक प्रवाह में इंजेक्शन माना जाता है। तार्किक रूप से, यदि सरकार निवेश को प्रोत्साहन देती है, तो इंजेक्शन बढ़ेगा।",
+        "explanation_en": "The notes state that investment is considered an Injection in economic flow. Logically, if the government encourages investment, Injection increases."
+    },
+    {
+        "q": "यदि घर-परिवार कर देना बंद कर दें, तो चार-क्षेत्रीय मॉडल में सरकार की भूमिका पर क्या प्रभाव पड़ेगा?",
+        "q_en": "If Households stop paying taxes, what will be the effect on the Government’s role in the Four-Sector Model?",
+        "options": ["सरकार की भूमिका बढ़ेगी", "सरकार की भूमिका कम होगी", "सरकार की भूमिका अपरिवर्तित रहेगी", "सरकार उत्पादन बंद कर देगी"],
+        "options_en": ["Government Role Increases", "Government Role Decreases", "Government Role Remains Unchanged", "Government Stops Production"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, सरकार करों के माध्यम से राजस्व एकत्र करती है, जिसका उपयोग सार्वजनिक सेवाओं और सब्सिडी के लिए होता है। तार्किक रूप से, यदि कर बंद हो जाते हैं, तो सरकार की भूमिका कम हो जाएगी।",
+        "explanation_en": "According to the notes, the government collects revenue through taxes for public services and subsidies. Logically, if taxes stop, the government’s role decreases."
+    },
+
+    // Hard Questions
+    {
+        "level": "Hard",
+        "q": "मिश्रित अर्थव्यवस्था में यदि सरकार और निजी क्षेत्र दोनों उत्पादन बढ़ाते हैं, तो राष्ट्रीय आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In a Mixed Economy, if both the government and private sector increase production, what will be the effect on National Income?",
+        "options": ["राष्ट्रीय आय कम होगी", "राष्ट्रीय आय बढ़ेगी", "राष्ट्रीय आय अपरिवर्तित रहेगी", "राष्ट्रीय आय शून्य हो जाएगी"],
+        "options_en": ["National Income Decreases", "National Income Increases", "National Income Remains Unchanged", "National Income Becomes Zero"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में सरकार और निजी क्षेत्र दोनों उत्पादन करते हैं। यदि दोनों उत्पादन बढ़ाते हैं, तो कुल उत्पादन (और इस प्रकार राष्ट्रीय आय) बढ़ेगी, क्योंकि उत्पादन राष्ट्रीय आय का हिस्सा है।",
+        "explanation_en": "According to the notes, in a Mixed Economy, both the government and private sector undertake production. If both increase production, total production (and thus National Income) increases, as production is a component of National Income."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में यदि घर-परिवार की आय बढ़ती है, लेकिन उपभोग नहीं बढ़ता, तो क्या होगा?",
+        "q_en": "In the Two-Sector Model, if Households’ income increases but consumption does not, what will happen?",
+        "options": ["निवेश बढ़ेगा", "बचत बढ़ेगी", "उत्पादन बढ़ेगा", "मौद्रिक प्रवाह कम होगा"],
+        "options_en": ["Investment Increases", "Saving Increases", "Production Increases", "Monetary Flow Decreases"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, आय = व्यय + बचत। यदि आय बढ़ती है, लेकिन उपभोग (व्यय) नहीं बढ़ता, तो शेष आय बचत के रूप में बढ़ेगी। यह कठिन है क्योंकि लोग इसे उत्पादन या निवेश से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, Income = Expenditure + Saving. If income increases but consumption (expenditure) does not, the remaining income increases saving. This is hard as people may confuse it with production or investment."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में यदि सरकार का व्यय बढ़ता है, तो कुल आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In the Four-Sector Model, if Government expenditure increases, what will be the effect on Total Income?",
+        "options": ["कुल आय कम होगी", "कुल आय बढ़ेगी", "कुल आय अपरिवर्तित रहेगी", "कुल आय शून्य हो जाएगी"],
+        "options_en": ["Total Income Decreases", "Total Income Increases", "Total Income Remains Unchanged", "Total Income Becomes Zero"],
+        "answer": 1,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) है। यदि सरकारी व्यय (G) बढ़ता है, तो कुल आय बढ़ेगी। यह कठिन है क्योंकि लोग इसे करों या रिसाव से जोड़ सकते हैं।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M). If Government expenditure (G) increases, Total Income increases. This is hard as people may confuse it with taxes or Leakage."
+    },
+    {
+        "q": "यदि पूँजीवादी अर्थव्यवस्था में माँग और आपूर्ति संतुलन में नहीं हैं, तो क्या होगा?",
+        "q_en": "If demand and supply are not in balance in a Capitalist economy, what will happen?",
+        "options": ["मूल्य स्थिर रहेंगे", "मूल्य में उतार-चढ़ाव होगा", "सरकारी हस्तक्षेप बढ़ेगा", "सामाजिक कल्याण बढ़ेगा"],
+        "options_en": ["Prices Remain Stable", "Prices Fluctuate", "Government Intervention Increases", "Social Welfare Increases"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, पूँजीवादी अर्थव्यवस्था में माँग और आपूर्ति की शक्तियाँ मूल्य निर्धारण को नियंत्रित करती हैं। यदि संतुलन नहीं है, तो मूल्य में उतार-चढ़ाव होगा। यह कठिन है क्योंकि लोग सरकारी हस्तक्षेप की उम्मीद कर सकते हैं।",
+        "explanation_en": "According to the notes, in a Capitalist economy, demand and supply forces control pricing. If not balanced, prices will fluctuate. This is hard as people may expect government intervention."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में यदि PPP मॉडल लागू होता है, तो संसाधनों का उपयोग कैसे होगा?",
+        "q_en": "In a Mixed Economy, if the PPP model is implemented, how will resources be used?",
+        "options": ["केवल सरकार द्वारा", "केवल निजी क्षेत्र द्वारा", "सरकार और निजी क्षेत्र दोनों द्वारा", "विदेशी व्यापार द्वारा"],
+        "options_en": ["Only by Government", "Only by Private Sector", "By Both Government and Private Sector", "By Foreign Trade"],
+        "answer": 2,
+        "explanation": "नोट्स में कहा गया है कि PPP (Public Private Partnership) में सरकार और निजी क्षेत्र मिलकर बुनियादी ढांचे जैसे सड़क, बिजली आदि के लिए संसाधनों का उपयोग करते हैं। यह कठिन है क्योंकि लोग इसे केवल सरकार या निजी क्षेत्र से जोड़ सकते हैं।",
+        "explanation_en": "The notes state that in PPP (Public-Private Partnership), the government and private sector jointly use resources for infrastructure like roads, electricity, etc. This is hard as people may associate it solely with the government or private sector."
+    },
+    {
+        "q": "यदि कोई देश निर्यात बढ़ाता है, लेकिन आयात भी बढ़ाता है, तो शुद्ध निर्यात (X – M) पर क्या प्रभाव पड़ेगा?",
+        "q_en": "If a country increases exports but also increases imports, what will be the effect on Net Exports (X – M)?",
+        "options": ["शुद्ध निर्यात बढ़ेगा", "शुद्ध निर्यात कम होगा", "शुद्ध निर्यात अपरिवर्तित रहेगा", "शुद्ध निर्यात शून्य हो जाएगा"],
+        "options_en": ["Net Exports Increase", "Net Exports Decrease", "Net Exports Remain Unchanged", "Net Exports Become Zero"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, शुद्ध निर्यात (X – M) निर्यात और आयात के अंतर पर निर्भर करता है। यदि दोनों समान अनुपात में बढ़ते हैं, तो शुद्ध निर्यात अपरिवर्तित रहेगा। यह कठिन है क्योंकि लोग इसे राष्ट्रीय आय से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, Net Exports (X – M) depend on the difference between exports and imports. If both increase proportionally, Net Exports remain unchanged. This is hard as people may confuse it with National Income."
+    },
+    {
+        "q": "दो-क्षेत्रीय मॉडल में यदि फर्म उत्पादन बढ़ाती हैं, लेकिन घर-परिवार उपभोग नहीं बढ़ाते, तो क्या होगा?",
+        "q_en": "In the Two-Sector Model, if Firms increase production but Households do not increase consumption, what will happen?",
+        "options": ["बचत बढ़ेगी", "निवेश कम होगा", "मौद्रिक प्रवाह बढ़ेगा", "उत्पादन बंद हो जाएगा"],
+        "options_en": ["Saving Increases", "Investment Decreases", "Monetary Flow Increases", "Production Stops"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, दो-क्षेत्रीय मॉडल में घर-परिवार की माँग उत्पादन को प्रेरित करती है। यदि फर्म उत्पादन बढ़ाती हैं, लेकिन उपभोग नहीं बढ़ता, तो अतिरिक्त आय बचत के रूप में बढ़ेगी। यह कठिन है क्योंकि लोग इसे उत्पादन बंद होने से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in the Two-Sector Model, Household demand drives production. If Firms increase production but consumption does not increase, additional income will increase saving. This is hard as people may confuse it with production stopping."
+    },
+    {
+        "q": "चार-क्षेत्रीय मॉडल में यदि विदेशी व्यापार बढ़ता है, लेकिन शुद्ध निर्यात (X – M) शून्य रहता है, तो कुल आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In the Four-Sector Model, if foreign trade increases but Net Exports (X – M) remain zero, what will be the effect on Total Income?",
+        "options": ["कुल आय बढ़ेगी", "कुल आय कम होगी", "कुल आय अपरिवर्तित रहेगी", "कुल आय शून्य हो जाएगी"],
+        "options_en": ["Total Income Increases", "Total Income Decreases", "Total Income Remains Unchanged", "Total Income Becomes Zero"],
+        "answer": 2,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) है। यदि शुद्ध निर्यात (X – M) शून्य रहता है, तो विदेशी व्यापार का कुल आय पर कोई अतिरिक्त प्रभाव नहीं पड़ेगा। यह कठिन है क्योंकि लोग विदेशी व्यापार को आय से जोड़ सकते हैं।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M). If Net Exports (X – M) remain zero, foreign trade has no additional effect on Total Income. This is hard as people may confuse foreign trade with income."
+    },
+    {
+        "q": "साम्यवादी अर्थव्यवस्था में यदि सरकार संसाधनों का वितरण बाजार को सौंप दे, तो क्या होगा?",
+        "q_en": "In a Socialist economy, if the government hands over resource distribution to the market, what will happen?",
+        "options": ["अर्थव्यवस्था पूँजीवादी हो जाएगी", "सामाजिक कल्याण बढ़ेगा", "उत्पादन बंद हो जाएगा", "कर संग्रहण कम होगा"],
+        "options_en": ["Economy Becomes Capitalist", "Social Welfare Increases", "Production Stops", "Tax Collection Decreases"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, साम्यवादी अर्थव्यवस्था में सरकार संसाधनों का वितरण नियंत्रित करती है। यदि यह नियंत्रण बाजार को सौंप दिया जाता है, तो अर्थव्यवस्था पूँजीवादी विशेषताएँ अपनाएगी। यह कठिन है क्योंकि लोग इसे सामाजिक कल्याण से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in a Socialist economy, the government controls resource distribution. If this control is handed to the market, the economy will adopt Capitalist characteristics. This is hard as people may associate it with social welfare."
+    },
+    {
+        "q": "मिश्रित अर्थव्यवस्था में यदि सरकार और निजी क्षेत्र के बीच संसाधनों का स्वामित्व असंतुलित हो जाता है, तो क्या हो सकता है?",
+        "q_en": "In a Mixed Economy, if resource ownership between the government and private sector becomes imbalanced, what could happen?",
+        "options": ["अर्थव्यवस्था साम्यवादी या पूँजीवादी हो सकती है", "राष्ट्रीय आय शून्य हो जाएगी", "विदेशी व्यापार बंद हो जाएगा", "उपभोग बढ़ेगा"],
+        "options_en": ["Economy Becomes Socialist or Capitalist", "National Income Becomes Zero", "Foreign Trade Stops", "Consumption Increases"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में संसाधनों का स्वामित्व सरकार और निजी क्षेत्र के बीच संतुलित होता है। यदि यह संतुलन बिगड़ता है, तो अर्थव्यवस्था साम्यवादी (सरकारी स्वामित्व अधिक) या पूँजीवादी (निजी स्वामित्व अधिक) हो सकती है। यह कठिन है क्योंकि लोग इसे आय से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in a Mixed Economy, resource ownership is balanced between the government and private sector. If this balance is disrupted, the economy may become Socialist (more government ownership) or Capitalist (more private ownership). This is hard as people may confuse it with income."
+    },
+     {
+        "level": "Very Hard",
+        "q": "यदि दो-क्षेत्रीय मॉडल में घर-परिवार की आय बढ़ती है, लेकिन वे उपभोग और बचत दोनों नहीं बढ़ाते, तो आर्थिक प्रवाह में क्या होगा?",
+        "q_en": "In the Two-Sector Model, if Households’ income increases but they neither increase consumption nor saving, what will happen in the economic flow?",
+        "options": ["मौद्रिक प्रवाह बढ़ेगा", "वास्तविक प्रवाह बंद हो जाएगा", "आर्थिक प्रवाह में कोई बदलाव नहीं होगा", "उत्पादन बढ़ेगा"],
+        "options_en": ["Monetary Flow Increases", "Real Flow Stops", "No Change in Economic Flow", "Production Increases"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, आय = व्यय + बचत। यदि घर-परिवार की आय बढ़ती है, लेकिन उपभोग और बचत दोनों नहीं बढ़ते, तो यह तार्किक रूप से असंभव है क्योंकि अतिरिक्त आय या तो खर्च होनी चाहिए या बचाई जानी चाहिए। इसलिए, आर्थिक प्रवाह में कोई बदलाव नहीं होगा, क्योंकि यह परिदृश्य वास्तविक नहीं है। यह बहुत कठिन है क्योंकि यह तार्किक विरोधाभास पर आधारित है।",
+        "explanation_en": "According to the notes, Income = Expenditure + Saving. If Households’ income increases but neither consumption nor saving increases, this is logically impossible since additional income must be either spent or saved. Thus, there will be no change in economic flow, as this scenario is unrealistic. This is very hard as it is based on a logical contradiction."
+    },
+    {
+        "level": "Very Hard",
+        "q": "चार-क्षेत्रीय मॉडल में यदि सरकार कर संग्रहण और सब्सिडी दोनों बंद कर दे, लेकिन सरकारी व्यय बनाए रखे, तो कुल आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In the Four-Sector Model, if the Government stops both tax collection and subsidies but maintains government expenditure, what will be the effect on Total Income?",
+        "options": ["कुल आय बढ़ेगी", "कुल आय कम होगी", "कुल आय अपरिवर्तित रहेगी", "कुल आय शून्य हो जाएगी"],
+        "options_en": ["Total Income Increases", "Total Income Decreases", "Total Income Remains Unchanged", "Total Income Becomes Zero"],
+        "answer": 1,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) है। यदि सरकार कर और सब्सिडी बंद कर देती है, लेकिन सरकारी व्यय (G) बनाए रखती है, तो उसे धन उधार लेना होगा या अन्य स्रोतों से प्राप्त करना होगा। इससे G बढ़ेगा, जिससे कुल आय बढ़ेगी। यह बहुत कठिन है क्योंकि लोग इसे करों या सब्सिडी के रिसाव से जोड़ सकते हैं।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M). If the government stops taxes and subsidies but maintains expenditure (G), it must borrow or source funds elsewhere, increasing G and thus Total Income. This is very hard as people may confuse it with tax or subsidy leakage."
+    },
+    {
+        "level": "Very Hard",
+        "q": "मिश्रित अर्थव्यवस्था में यदि निजी क्षेत्र उत्पादन बढ़ाता है और सरकार संसाधनों का राष्ट्रीयकरण करती है, तो दीर्घकालिक प्रभाव क्या होगा?",
+        "q_en": "In a Mixed Economy, if the private sector increases production and the government nationalizes resources, what will be the long-term effect?",
+        "options": ["अर्थव्यवस्था पूँजीवादी हो जाएगी", "अर्थव्यवस्था साम्यवादी हो जाएगी", "राष्ट्रीय आय बढ़ेगी", "निजी क्षेत्र बंद हो जाएगा"],
+        "options_en": ["Economy Becomes Capitalist", "Economy Becomes Socialist", "National Income Increases", "Private Sector Shuts Down"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में संसाधनों का स्वामित्व सरकार और निजी क्षेत्र के बीच साझा होता है। यदि सरकार संसाधनों का राष्ट्रीयकरण करती है, तो स्वामित्व सरकार के पास अधिक होगा, जिससे अर्थव्यवस्था साम्यवादी विशेषताओं की ओर बढ़ेगी। यह बहुत कठिन है क्योंकि अल्पकालिक उत्पादन वृद्धि को राष्ट्रीय आय से जोड़ा जा सकता है।",
+        "explanation_en": "According to the notes, in a Mixed Economy, resource ownership is shared between the government and private sector. If the government nationalizes resources, ownership shifts more to the government, moving the economy toward Socialist characteristics. This is very hard as short-term production increases may be confused with National Income."
+    },
+    {
+        "level": "Very Hard",
+        "q": "पूँजीवादी अर्थव्यवस्था में यदि माँग स्थिर रहती है, लेकिन आपूर्ति अचानक बढ़ जाती है, तो मूल्य और उत्पादन पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In a Capitalist economy, if demand remains constant but supply suddenly increases, what will be the effect on price and production?",
+        "options": ["मूल्य बढ़ेगा, उत्पादन कम होगा", "मूल्य कम होगा, उत्पादन बढ़ेगा", "मूल्य कम होगा, उत्पादन स्थिर रहेगा", "मूल्य स्थिर रहेगा, उत्पादन बढ़ेगा"],
+        "options_en": ["Price Increases, Production Decreases", "Price Decreases, Production Increases", "Price Decreases, Production Remains Stable", "Price Remains Stable, Production Increases"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, पूँजीवादी अर्थव्यवस्था में माँग और आपूर्ति की शक्तियाँ मूल्य निर्धारण को नियंत्रित करती हैं। यदि माँग स्थिर है और आपूर्ति बढ़ती है, तो मूल्य कम होगा, लेकिन उत्पादन स्थिर रहेगा क्योंकि माँग अपरिवर्तित है। यह बहुत कठिन है क्योंकि लोग उत्पादन वृद्धि की उम्मीद कर सकते हैं।",
+        "explanation_en": "According to the notes, in a Capitalist economy, demand and supply forces control pricing. If demand is constant and supply increases, prices will decrease, but production will remain stable as demand is unchanged. This is very hard as people may expect production to increase."
+    },
+    {
+        "level": "Very Hard",
+        "q": "चार-क्षेत्रीय मॉडल में यदि शुद्ध निर्यात (X – M) नकारात्मक हो जाता है, लेकिन C, I, और G बढ़ते हैं, तो कुल आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In the Four-Sector Model, if Net Exports (X – M) become negative but C, I, and G increase, what will be the effect on Total Income?",
+        "options": ["कुल आय हमेशा बढ़ेगी", "कुल आय कम हो सकती है", "कुल आय अपरिवर्तित रहेगी", "कुल आय शून्य हो जाएगी"],
+        "options_en": ["Total Income Always Increases", "Total Income May Decrease", "Total Income Remains Unchanged", "Total Income Becomes Zero"],
+        "answer": 1,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) है। यदि X – M नकारात्मक है, लेकिन C, I, और G की वृद्धि नकारात्मक शुद्ध निर्यात से अधिक है, तो कुल आय बढ़ सकती है। हालांकि, यदि नकारात्मक X – M का प्रभाव बड़ा है, तो कुल आय कम हो सकती है। यह बहुत कठिन है क्योंकि यह कई कारकों के संतुलन पर निर्भर करता है।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M). If X – M is negative but the increase in C, I, and G outweighs the negative Net Exports, Total Income may increase. However, if the negative X – M has a larger effect, Total Income may decrease. This is very hard as it depends on the balance of multiple factors."
+    },
+    {
+        "level": "Very Hard",
+        "q": "मिश्रित अर्थव्यवस्था में यदि PPP मॉडल के तहत संसाधनों का उपयोग बढ़ता है, लेकिन निजी क्षेत्र की भागीदारी कम हो जाती है, तो दीर्घकालिक प्रभाव क्या होगा?",
+        "q_en": "In a Mixed Economy, if resource use under the PPP model increases but private sector participation decreases, what will be the long-term effect?",
+        "options": ["अर्थव्यवस्था पूँजीवादी हो जाएगी", "अर्थव्यवस्था साम्यवादी हो जाएगी", "राष्ट्रीय आय बढ़ेगी", "निजी क्षेत्र बंद हो जाएगा"],
+        "options_en": ["Economy Becomes Capitalist", "Economy Becomes Socialist", "National Income Increases", "Private Sector Shuts Down"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, PPP मॉडल में सरकार और निजी क्षेत्र मिलकर संसाधनों का उपयोग करते हैं। यदि निजी क्षेत्र की भागीदारी कम होती है, तो सरकार का नियंत्रण बढ़ेगा, जिससे अर्थव्यवस्था साम्यवादी विशेषताओं की ओर बढ़ेगी। यह बहुत कठिन है क्योंकि लोग इसे राष्ट्रीय आय या निजी क्षेत्र के बंद होने से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in the PPP model, the government and private sector jointly use resources. If private sector participation decreases, government control increases, moving the economy toward Socialist characteristics. This is very hard as people may confuse it with National Income or the private sector shutting down."
+    },
+    {
+        "level": "Very Hard",
+        "q": "साम्यवादी अर्थव्यवस्था में यदि सरकार उत्पादन के कारकों की आय को घर-परिवार को हस्तांतरित करने के बजाय स्वयं रख ले, तो क्या होगा?",
+        "q_en": "In a Socialist economy, if the government retains the income from Factors of Production instead of transferring it to Households, what will happen?",
+        "options": ["मौद्रिक प्रवाह बढ़ेगा", "वास्तविक प्रवाह बंद हो जाएगा", "घर-परिवार की आय शून्य हो जाएगी", "अर्थव्यवस्था पूँजीवादी हो जाएगी"],
+        "options_en": ["Monetary Flow Increases", "Real Flow Stops", "Household Income Becomes Zero", "Economy Becomes Capitalist"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, साम्यवादी अर्थव्यवस्था में उत्पादन के कारकों की आय घर-परिवार को हस्तांतरित की जाती है। यदि सरकार इस आय को रख लेती है, तो घर-परिवार की आय शून्य हो जाएगी, क्योंकि वे उत्पादन के कारकों के बदले भुगतान प्राप्त नहीं करेंगे। यह बहुत कठिन है क्योंकि लोग इसे प्रवाह या पूँजीवादी अर्थव्यवस्था से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in a Socialist economy, income from Factors of Production is transferred to Households. If the government retains this income, Household income becomes zero, as they receive no payment for factors. This is very hard as people may confuse it with flow or a Capitalist economy."
+    },
+    {
+        "level": "Very Hard",
+        "q": "दो-क्षेत्रीय मॉडल में यदि फर्म उत्पादन के कारकों के लिए भुगतान बंद कर देती हैं, लेकिन उत्पादन जारी रखती हैं, तो आर्थिक प्रवाह पर क्या प्रभाव पड़ेगा?",
+        "q_en": "In the Two-Sector Model, if Firms stop paying for Factors of Production but continue production, what will be the effect on economic flow?",
+        "options": ["मौद्रिक प्रवाह बंद हो जाएगा", "वास्तविक प्रवाह बढ़ेगा", "आर्थिक प्रवाह अपरिवर्तित रहेगा", "उपभोग बढ़ेगा"],
+        "options_en": ["Monetary Flow Stops", "Real Flow Increases", "Economic Flow Remains Unchanged", "Consumption Increases"],
+        "answer": 0,
+        "explanation": "नोट्स के अनुसार, दो-क्षेत्रीय मॉडल में मौद्रिक प्रवाह में फर्म द्वारा घर-परिवार को उत्पादन के कारकों के लिए भुगतान शामिल है। यदि फर्म भुगतान बंद कर देती हैं, तो मौद्रिक प्रवाह बंद हो जाएगा, भले ही उत्पादन जारी रहे। यह बहुत कठिन है क्योंकि लोग इसे वास्तविक प्रवाह या उपभोग से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in the Two-Sector Model, Monetary Flow includes payments by Firms to Households for Factors of Production. If Firms stop these payments, Monetary Flow stops, even if production continues. This is very hard as people may confuse it with Real Flow or consumption."
+    },
+    {
+        "level": "Very Hard",
+        "q": "चार-क्षेत्रीय मॉडल में यदि सरकार और विदेशी व्यापार दोनों बंद हो जाएँ, तो कुल आय का सूत्र क्या होगा?",
+        "q_en": "In the Four-Sector Model, if both the Government and Foreign Trade cease, what will be the formula for Total Income?",
+        "options": ["Y = C + I", "Y = C + I + G", "Y = C + G", "Y = C + I + (X – M)"],
+        "options_en": ["Y = C + I", "Y = C + I + G", "Y = C + G", "Y = C + I + (X – M)"],
+        "answer": 0,
+        "explanation": "नोट्स में कुल आय का सूत्र Y = C + I + G + (X – M) है। यदि सरकार (G) और विदेशी व्यापार (X – M) दोनों बंद हो जाते हैं, तो सूत्र Y = C + I रहता है, जो दो-क्षेत्रीय मॉडल के समान है। यह बहुत कठिन है क्योंकि लोग इसे चार-क्षेत्रीय मॉडल के पूर्ण सूत्र से जोड़ सकते हैं।",
+        "explanation_en": "The notes provide the formula for Total Income as Y = C + I + G + (X – M). If both Government (G) and Foreign Trade (X – M) cease, the formula becomes Y = C + I, equivalent to the Two-Sector Model. This is very hard as people may confuse it with the full Four-Sector Model formula."
+    },
+    {
+        "level": "Very Hard",
+        "q": "मिश्रित अर्थव्यवस्था में यदि सरकार निजी क्षेत्र को पूर्ण स्वतंत्रता दे दे, लेकिन कर संग्रहण बनाए रखे, तो अर्थव्यवस्था का स्वरूप क्या होगा?",
+        "q_en": "In a Mixed Economy, if the government grants full freedom to the private sector but maintains tax collection, what will be the nature of the economy?",
+        "options": ["पूर्ण रूप से साम्यवादी", "पूर्ण रूप से पूँजीवादी", "मिश्रित अर्थव्यवस्था बनी रहेगी", "अर्थव्यवस्था बंद हो जाएगी"],
+        "options_en": ["Fully Socialist", "Fully Capitalist", "Mixed Economy Remains", "Economy Shuts Down"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, मिश्रित अर्थव्यवस्था में सरकार नीति निर्माण और कर संग्रहण करती है, जबकि निजी क्षेत्र को उत्पादन की स्वतंत्रता होती है। यदि सरकार निजी क्षेत्र को पूर्ण स्वतंत्रता देती है, लेकिन कर संग्रहण बनाए रखती है, तो यह अभी भी मिश्रित अर्थव्यवस्था होगी, क्योंकि सरकारी हस्तक्षेप (कर के रूप में) बना रहेगा। यह बहुत कठिन है क्योंकि लोग इसे पूँजीवादी अर्थव्यवस्था से जोड़ सकते हैं।",
+        "explanation_en": "According to the notes, in a Mixed Economy, the government handles policy-making and tax collection while the private sector has production freedom. If the government grants full freedom to the private sector but maintains tax collection, it remains a Mixed Economy due to continued government intervention (via taxes). This is very hard as people may confuse it with a Capitalist economy."
+    }
+
+    ];
+
+        let selectedAnswers = new Array(questions.length).fill(null);
+        let submitted = false;
+        let score = 0;
+        let totalSeconds = 0;
+        let language = 'hi';
+        let timerInterval;
+        let answerTimes = [];
+        let startTime;
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                document.getElementById('totalTime').innerText = formatTime(totalSeconds);
+                updateTimerBar();
+            }, 1000);
+        }
+
+        function updateTimerBar() {
+            const maxTime = 150;
+            const width = (1 - totalSeconds / maxTime) * 100;
+            let color;
+            if (totalSeconds <= 50) {
+                color = 'lightgreen';
+            } else if (totalSeconds <= 75) {
+                color = 'green';
+            } else if (totalSeconds <= 100) {
+                color = 'black';
+            } else {
+                color = 'red';
+            }
+            const fill = document.getElementById('timerBarFill');
+            fill.style.width = `${width}%`;
+            fill.style.background = color;
+            if (totalSeconds >= maxTime && !submitted) {
+                submitQuiz();
+            }
+        }
+
+        function loadQuestions() {
+            const quiz = document.getElementById('quiz');
+            const lang = document.getElementById('languageToggle').value;
+            const answered = selectedAnswers.filter(a => a !== null).length;
+            document.getElementById('progressBar').style.width = (answered / questions.length * 100) + '%';
+            document.getElementById('progressCircle').textContent = `${Math.round(answered / questions.length * 100)}%`;
+            document.getElementById('progressCircle').style.transform = 'scale(0)';
+            setTimeout(() => document.getElementById('progressCircle').style.transform = 'scale(1)', 10);
+
+            quiz.innerHTML = questions.map((q, index) => {
+                let cls = '';
+                if (selectedAnswers[index] !== null) {
+                    cls = 'answered';
+                }
+                return `
+                    <div class='card ${cls}'>
+                        <div class='question'>
+                            Q${index + 1}. ${lang === 'en' ? q.q_en : q.q}
+                            ${lang === 'both' ? `<div class='en'>Q${index + 1}. ${q.q_en}</div>` : ''}
+                        </div>
+                        <div class='options'>
+                            ${q.options.map((opt, i) => {
+                                let btnCls = '';
+                                if (selectedAnswers[index] !== null) {
+                                    if (i === q.answer) btnCls = 'correct disabled';
+                                    else if (selectedAnswers[index] === i) btnCls = 'wrong disabled';
+                                    else btnCls = 'disabled';
+                                }
+                                return `
+                                    <button class='${btnCls}' onclick='selectOption(${index}, ${i})' ${btnCls.includes('disabled') ? 'disabled' : ''}>
+                                        ${String.fromCharCode(65 + i)}) ${lang === 'en' ? q.options_en[i] : opt}
+                                        ${lang === 'both' ? `<div class='en'>${String.fromCharCode(65 + i)}) ${q.options_en[i]}</div>` : ''}
+                                    </button>`;
+                            }).join('')}
+                        </div>
+                        ${selectedAnswers[index] !== null ? `
+                            <div class='explanation ${selectedAnswers[index] !== null ? 'active' : ''}'>
+                                <b>Explanation:</b> ${lang === 'en' ? q.explanation_en : q.explanation}
+                                ${lang === 'both' ? `<div class='en'><b>Explanation:</b> ${q.explanation_en}</div>` : ''}
+                            </div>` : ''}
+                    </div>`;
+            }).join('');
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+        }
+
+        function selectOption(qIndex, optIndex) {
+            if (submitted) return;
+            if (selectedAnswers[qIndex] !== null) return;
+
+            const endTime = Date.now();
+            const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+            answerTimes[qIndex] = { time: timeTaken, correct: optIndex === questions[qIndex].answer };
+
+            selectedAnswers[qIndex] = optIndex;
+            if (optIndex === questions[qIndex].answer) {
+                score++;
+            }
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+            loadQuestions();
+            startTime = Date.now(); // Reset start time for the next question
+        }
+
+        function submitQuiz() {
+            if (submitted) return;
+
+            selectedAnswers.forEach((answer, index) => {
+                if (answer === null) {
+                    selectedAnswers[index] = -1; // Mark unattempted
+                }
+            });
+
+            submitted = true;
+            document.getElementById('score').innerText = `Your Score: ${score} / ${questions.length} (Total Time: ${formatTime(totalSeconds)})`;
+            loadQuestions();
+            clearInterval(timerInterval);
+            setTimeout(goToDashboard, 2000);
+        }
+
+        function openRestartModal() {
+            if (submitted) {
+                alert('Cannot restart after submit');
+                return;
+            }
+            const checkboxes = document.getElementById('questionCheckboxes');
+            checkboxes.innerHTML = '';
+
+            const selectAllLabel = document.createElement('label');
+            const selectAll = document.createElement('input');
+            selectAll.type = 'checkbox';
+            selectAll.onclick = () => {
+                const cbs = document.querySelectorAll('#questionCheckboxes input[type="checkbox"]');
+                cbs.forEach(cb => {
+                    if (cb !== selectAll) cb.checked = selectAll.checked;
+                });
+            };
+            selectAllLabel.appendChild(selectAll);
+            selectAllLabel.appendChild(document.createTextNode('Select All'));
+            checkboxes.appendChild(selectAllLabel);
+            checkboxes.appendChild(document.createElement('br'));
+
+            questions.forEach((q, i) => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = i;
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(`Question ${i + 1}`));
+                checkboxes.appendChild(label);
+                checkboxes.appendChild(document.createElement('br'));
+            });
+
+            document.getElementById('restartModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('restartModal').style.display = 'none';
+        }
+
+        function applyRestart() {
+            const checkboxes = document.querySelectorAll('#questionCheckboxes input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => {
+                if (cb.value !== undefined) {
+                    const idx = parseInt(cb.value);
+                    if (selectedAnswers[idx] === questions[idx].answer) {
+                        score--;
+                    }
+                    selectedAnswers[idx] = null;
+                    answerTimes[idx] = null; // Clear answer time
+                }
+            });
+
+            closeModal();
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+            loadQuestions();
+        }
+
+        function goToQuizPage() {
+            document.getElementById('startPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'block';
+            document.getElementById('dashboardPage').style.display = 'none';
+            startTimer();
+            loadQuestions();
+            startTime = Date.now(); // Initialize start time for the first question
+        }
+
+        function goToDashboard() {
+            document.getElementById('startPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+            loadDashboard();
+        }
+
+        function loadDashboard() {
+            const totalQuestions = questions.length;
+            const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+            const unattempted = totalQuestions - attempted;
+            const correct = score;
+            const wrong = attempted - correct;
+            const scorePercentage = (correct / totalQuestions * 100).toFixed(1) || 0;
+           const totalMarks = `${totalQuestions} / ${correct}`; // 1 mark per question
+
+            const totalTime = formatTime(totalSeconds);
+            const avgTimePerQuestion = (totalSeconds / attempted).toFixed(1) || 0;
+            const speed = (attempted / (totalSeconds / 60)).toFixed(1) || 0;
+            const accuracy = (correct / attempted * 100).toFixed(1) || 0;
+            const efficiency = accuracy > 80 ? 'High' : accuracy > 60 ? 'Medium' : 'Low';
+            const percentile = accuracy > 90 ? 'Top 15%' : accuracy > 70 ? 'Top 30%' : 'Top 50%';
+            const rank = Math.floor(Math.random() * 280) + 1; // Placeholder
+            let longestStreak = 0;
+            let currentStreak = 0;
+            selectedAnswers.forEach((answer, i) => {
+                if (answer === questions[i].answer) {
+                    currentStreak++;
+                    longestStreak = Math.max(longestStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+            });
+            const bestSection = 'History (100%)'; // Static as per quiz context
+            const weakSection = 'N/A'; // Placeholder
+            const improvement = accuracy > 80 ? '+5%' : '+2%'; // Placeholder
+            const performanceLevel = accuracy > 80 ? 'Advanced' : accuracy > 60 ? 'Intermediate' : 'Beginner';
+            const medals = accuracy > 80 ? 'Accuracy Master' : 'N/A'; // Placeholder
+            const efficiencyScore = (accuracy * 0.9).toFixed(0); // Placeholder
+            const predictedScore = (scorePercentage * 1.02).toFixed(1); // Placeholder
+            const fastestAnswer = answerTimes.filter(t => t).length ? Math.min(...answerTimes.filter(t => t).map(t => t.time)).toFixed(0) : 'N/A';
+            const slowestAnswer = answerTimes.filter(t => t).length ? Math.max(...answerTimes.filter(t => t).map(t => t.time)).toFixed(0) : 'N/A';
+            const avgTimeCorrect = answerTimes.filter(t => t && t.correct).length ? (answerTimes.filter(t => t && t.correct).reduce((sum, t) => sum + t.time, 0) / answerTimes.filter(t => t && t.correct).length).toFixed(1) : 'N/A';
+            const avgTimeWrong = answerTimes.filter(t => t && !t.correct).length ? (answerTimes.filter(t => t && !t.correct).reduce((sum, t) => sum + t.time, 0) / answerTimes.filter(t => t && !t.correct).length).toFixed(1) : 'N/A';
+            const timeEfficiency = (1 - totalSeconds / (totalQuestions * 30)).toFixed(2); // Placeholder
+            const guessRate = wrong > 0 ? ((wrong / attempted) * 100).toFixed(1) : 0;
+            const firstHalfAccuracy = selectedAnswers.slice(0, Math.ceil(totalQuestions / 2)).filter((a, i) => a === questions[i].answer).length / Math.ceil(totalQuestions / 2) * 100 || 0;
+
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = `
+                <div class="dash-box"><h4>Total Questions</h4><p>${totalQuestions}</p></div>
+                <div class="dash-box"><h4>Attempted</h4><p>${attempted}</p></div>
+                <div class="dash-box"><h4>Unattempted</h4><p>${unattempted}</p></div>
+                <div class="dash-box"><h4>Correct</h4><p>${correct}</p></div>
+                <div class="dash-box"><h4>Wrong</h4><p>${wrong}</p></div>
+                <div class="dash-box"><h4>Score</h4><p>${scorePercentage}%</p></div>
+                <div class="dash-box"><h4>Total Marks</h4><p>${totalMarks}</p></div>
+                <div class="dash-box"><h4>Total Time</h4><p>${totalTime}</p></div>
+                <div class="dash-box"><h4>Avg Time/Q</h4><p>${avgTimePerQuestion} sec</p></div>
+                <div class="dash-box"><h4>Speed</h4><p>${speed} Q/min</p></div>
+                <div class="dash-box"><h4>Accuracy</h4><p>${accuracy}%</p></div>
+                <div class="dash-box"><h4>Efficiency</h4><p>${efficiency}</p></div>
+                <div class="dash-box"><h4>Percentile</h4><p>${percentile}</p></div>
+                <div class="dash-box"><h4>Rank</h4><p>${rank} / 1</p></div>
+                <div class="dash-box"><h4>Longest Streak</h4><p>${longestStreak} Qs</p></div>
+                <div class="dash-box"><h4>Best Section</h4><p>${bestSection}</p></div>
+                <div class="dash-box"><h4>Weak Section</h4><p>${weakSection}</p></div>
+                <div class="dash-box"><h4>Improvement</h4><p>${improvement}</p></div>
+                <div class="dash-box"><h4>Performance Level</h4><p>${performanceLevel}</p></div>
+                <div class="dash-box"><h4>Medals</h4><p>${medals}</p></div>
+                <div class="dash-box"><h4>Efficiency Score</h4><p>${efficiencyScore}</p></div>
+                <div class="dash-box"><h4>Predicted Score</h4><p>${predictedScore}%</p></div>
+                <div class="dash-box"><h4>Questions/Min</h4><p>${speed} Q/min</p></div>
+                <div class="dash-box"><h4>Fastest Answer</h4><p>${fastestAnswer} sec</p></div>
+                <div class="dash-box"><h4>Slowest Answer</h4><p>${slowestAnswer} sec</p></div>
+                <div class="dash-box"><h4>Avg Time Correct</h4><p>${avgTimeCorrect} sec</p></div>
+                <div class="dash-box"><h4>Avg Time Wrong</h4><p>${avgTimeWrong} sec</p></div>
+                <div class="dash-box"><h4>Time Efficiency</h4><p>${timeEfficiency}</p></div>
+                <div class="dash-box"><h4>Guess Rate</h4><p>${guessRate}%</p></div>
+                <div class="dash-box"><h4>First-Half Accuracy</h4><p>${firstHalfAccuracy.toFixed(1)}%</p></div>
+            `;
+        }
+
+        // Initialize
+        document.getElementById('timerContainer').addEventListener('dblclick', function() {
+            this.classList.toggle('hidden');
+        });
+
+        // Load Google Fonts
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Tangerine&family=Allura&family=Poppins:wght@400;600&display=swap';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+    </script>
+</body>
+</html>
